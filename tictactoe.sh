@@ -1,30 +1,30 @@
-#! /bin/bash
+#! /bin/bash/
 
-echo "TicTakToe game"
+
+echo "Welcome to TicTakToe game"
+
+player=1
 
 array=(@ @ @ @ @ @ @ @ @)
-player=1
 
 function playingBox()
 {
 
-	echo "row 0   ${array[0]} ${array[1]} ${array[2]}"
-	echo "row 1   ${array[3]} ${array[4]} ${array[5]}"
-	echo "row 2   ${array[6]} ${array[7]} ${array[8]}"
+	echo "row 0  ${array[0]} ${array[1]} ${array[2]}"
+	echo "row 1  ${array[3]} ${array[4]} ${array[5]}"
+	echo "row 2  ${array[6]} ${array[7]} ${array[8]}"
 }
-
-playingBox
 
 function toss()
 {
 
-echo "----option are----"
-echo "1.up"
-echo "2.down"
+echo "Options:"
+echo "1. Up"
+echo "2. Down"
 
 	read -r tossOption
 
-	tossNum=$(( $RANDOM%2 +1 ))
+	tossNum=$(( (( $RANDOM%2 ))+1 ))
 
 	if [ $tossNum -eq $tossOption ]
 	then
@@ -33,6 +33,8 @@ echo "2.down"
 		echo "player lost toss"
 		player=$(( (( $player%2 ))+1 ))
 	fi
+
+	playingBox
 }
 
 function symbols()
@@ -45,8 +47,9 @@ function symbols()
                 player_Symbol=O
         fi
 
-        echo "player choosed"$player_Symbol
+        echo "player symbol is : "$player_Symbol
 
         toss
 }
+
 symbols
