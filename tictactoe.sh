@@ -6,7 +6,7 @@ function resetting()
 
   	player=1
 	array=(@ @ @ @ @ @ @ @ @)
-	game_Status=1
+	game_Position=1
 }
 
 function GamePlace()
