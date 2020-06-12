@@ -1,13 +1,12 @@
-#! /bin/bash/ 
-
+#! /bin/bash 
 echo "TicTakToe game"
 
 function resetting()
 {
 
   	player=1
-	array=(@ @ @ @ @ @ @ @ @ )
-	game_Position=1
+	array=(@ @ @ @ @ @ @ @ @)
+	game_Status=1
 }
 
 function GamePlace()
@@ -15,12 +14,12 @@ function GamePlace()
 
          if [ $game_Position -eq 0 ]
                 then
-                        playingBox
-                        echo "player "$player "won "
+                        printBoard
+                        echo "player "$player "won the game"
                 elif [ $game_Position -eq 2 ]
                 then
                         playing_Box
-                        echo "tie"
+                        echo "match tie"
                         game_Position=0
                 else
                         player=$(( (( $player%2 ))+1 ))
@@ -36,22 +35,6 @@ function GamePlace()
 
 function checkGame()
 {
-
-	case $computerChoice in
-		checkTWinning) if [ ${array[$1]} == $computerSymbol ] && [ ${array[$2]} == $computerSymbol ] && [ ${array[$3]} == "@" ]
-			    then 
-					array[$3]=$computerSymbol
-			    elif [ ${array[$1]} == $computerSymbol ] && [ ${array[$2]} == "." ] && [ ${array[$3]} == $computerSymbol ]
-			    then 
-					 array[$2]=$computerSymbol
-			    elif [ ${array[$1]} == "." ] && [ ${array[$2]} == $computerSymbol ] && [ ${array[$3]} == $computerSymbol ]
-			    then
-					array[$1]=$computerSymbol
-			    fi ;;
-
-		Zero) echo " " ;;
-	esac
-
 	if [ ${array[$1]} != "@" ] && [ ${array[$1]} == ${array[$2]} ] && [ ${array[$2]} == ${array[$3]} ]
         then
                 game_Position=0
@@ -59,10 +42,55 @@ function checkGame()
 
 }
 
+function checkWinning()
+{
+
+
+	if [ $valueSet -eq 0 ]
+	then
+		if [ ${array[$1]} == $computerSymbol ] && [ ${array[$2]} == $computerSymbol ] && [ ${array[$3]} == "@" ]
+		then 
+			array[$3]=$computerSymbol
+			valueSet=1
+		elif [ ${array[$1]} == $computerSymbol ] && [ ${array[$2]} == "@" ] && [ ${array[$3]} == $computerSymbol ]
+		then 
+			array[$2]=$computerSymbol
+			valueSet=1
+		elif [ ${array[$1]} == "@" ] && [ ${array[$2]} == $computerSymbol ] && [ ${array[$3]} == $computerSymbol ]
+		then
+			array[$1]=$computerSymbol
+			valueSet=1
+		fi 
+	fi
+
+}
+
+function blockGame()
+{
+
+	if [ $valueSet -eq 0 ]
+        then
+
+		if [ ${array[$1]} == $playerOneSymbol ] && [ ${array[$2]} == $playerOneSymbol ] && [ ${array[$3]} == "@" ]
+        	then
+        		array[$3]=$computerSymbol
+			valueSet=1
+        	elif [ ${array[$1]} == $playerOneSymbol ] && [ ${array[$2]} == "@" ] && [ ${array[$3]} == $playerOneSymbol ]
+        	then
+                	array[$2]=$computerSymbol
+			valueSet=1
+        	elif [ ${array[$1]} == "@" ] && [ ${array[$2]} == $playerOneSymbol ] && [ ${array[$3]} == $playerOneSymbol ]
+        	then
+                	array[$1]=$computerSymbol
+			valueSet=1
+        	fi
+	fi
+}
+
 function drawMatch()
 {
 
-	if [ ${array[0]} != "@" ] && [ ${array[1]} != "@" ] && [ ${array[2]} != "@" ] && [ ${array[3]} != "@" ] && [ ${array[4]} != "@" ] && [ ${array[5]} != "@" ] && [ ${array[6]} != "@" ] && [ ${array[7]} != "@" ] && [ ${array[8]} != "@" ]
+	if [ ${array[0]} != "@" ] && [ ${array[1]} != ".@" ] && [ ${array[2]} != "@" ] && [ ${array[3]} != "@" ] && [ ${array[4]} != "@" ] && 	[ ${array[5]} != "@" ] && [ ${array[6]} != "@" ] && [ ${array[7]} != "@" ] && [ ${array[8]} != "@" ]
 	then
 		game_Position=2
 	fi
@@ -70,6 +98,7 @@ function drawMatch()
 
 function checkBox()
 {
+
 	drawMatch
 	checkGame 0 1 2
 	checkGame 3 4 5
@@ -91,9 +120,9 @@ function playingBox()
 function toss()
 {
 
-echo "Option :"
-echo "1. Up"
-echo "2. Down"
+	echo "Option :"
+	echo "1. Up"
+	echo "2. Down"
 
 	read -r tossOption
 
@@ -156,8 +185,26 @@ function setBox()
 
 function computerEnters()
 {
+	valueSet=0
 
-	computerChoice=checkWinning
+	checkWinning 0 1 2
+        checkWinning 3 4 5
+        checkWinning 6 7 8
+        checkWinning 0 3 6
+        checkWinning 1 4 7
+        checkWinning 2 5 8
+        checkWinning 0 4 8
+        checkWinning 2 4 6
+
+	blockGame 0 1 2
+        blockGame 3 4 5
+        blockGame 6 7 8
+        blockGame 0 3 6
+        blockGame 1 4 7
+        blockGame 2 5 8
+        blockGame 0 4 8
+        blockGame 2 4 6
+
 }
 
 function playerEnters()
@@ -191,8 +238,7 @@ function playerOption()
 			playerEnters
 		   else
 			computerEnters
-		   fi 
-		   ;;
+		   fi ;;
 		2) playerEnters
 	esac
 }
@@ -203,14 +249,12 @@ function Options()
 	echo "Options: "
 	echo "1. Computer"
 	echo "2. Between Players"
-
 	read -r mode
 }
 
 function ComputerGame()
 {
-
- 	if [ $player -eq 2 ]
+	if [ $player -eq 2 ]
         then
                	echo "computer can play now"
         else
