@@ -1,22 +1,62 @@
-#! /bin/bash 
+#! /bin/bash/ 
 
 echo "TicTakToe game"
 
 function resetting()
 {
-	player=1
-	array=(@ @ @ @ @ @ @ @ @)
 
+  	player=1
+	array=(@ @ @ @ @ @ @ @ @ )
 	game_Position=1
+}
+
+function GamePlace()
+{
+
+         if [ $game_Position -eq 0 ]
+                then
+                        playingBox
+                        echo "player "$player "won "
+                elif [ $game_Position -eq 2 ]
+                then
+                        playing_Box
+                        echo "tie"
+                        game_Position=0
+                else
+                        player=$(( (( $player%2 ))+1 ))
+
+			if [ $mode -eq 1 ] && [ $player -eq 2 ]
+			then
+				echo "computer can play now"
+			else
+                        	echo "player "$player "can play now"
+                	fi
+	fi
 }
 
 function checkGame()
 {
 
+	case $computerChoice in
+		checkTWinning) if [ ${array[$1]} == $computerSymbol ] && [ ${array[$2]} == $computerSymbol ] && [ ${array[$3]} == "@" ]
+			    then 
+					array[$3]=$computerSymbol
+			    elif [ ${array[$1]} == $computerSymbol ] && [ ${array[$2]} == "." ] && [ ${array[$3]} == $computerSymbol ]
+			    then 
+					 array[$2]=$computerSymbol
+			    elif [ ${array[$1]} == "." ] && [ ${array[$2]} == $computerSymbol ] && [ ${array[$3]} == $computerSymbol ]
+			    then
+					array[$1]=$computerSymbol
+			    fi ;;
+
+		Zero) echo " " ;;
+	esac
+
 	if [ ${array[$1]} != "@" ] && [ ${array[$1]} == ${array[$2]} ] && [ ${array[$2]} == ${array[$3]} ]
-	then
-		game_Position=0
-	fi
+        then
+                game_Position=0
+        fi
+
 }
 
 function drawMatch()
@@ -30,7 +70,6 @@ function drawMatch()
 
 function checkBox()
 {
-
 	drawMatch
 	checkGame 0 1 2
 	checkGame 3 4 5
@@ -44,7 +83,6 @@ function checkBox()
 
 function playingBox()
 {
-
 	echo "row 0   ${array[0]} ${array[1]} ${array[2]}"
 	echo "row 1   ${array[3]} ${array[4]} ${array[5]}"
 	echo "row 2   ${array[6]} ${array[7]} ${array[8]}"
@@ -76,7 +114,6 @@ echo "2. Down"
 
 function symbols()
 {
-
 	case $mode in
 		1) if [ $(( $RANDOM%2 )) -eq 1 ]
 	           then
@@ -113,14 +150,18 @@ function setBox()
 	then
 		array[$arrayId]=$3
 	else
-		echo "cannot place there"
+		echo "cannot place "
 	fi
 }
 
-
-function input()
+function computerEnters()
 {
 
+	computerChoice=checkWinning
+}
+
+function playerEnters()
+{
 	if [ $player -eq 1 ]
 	then
 		player_Symbol=$playerOneSymbol
@@ -136,9 +177,24 @@ function input()
 			setBox $row $column $player_Symbol
 		else
 			echo "enter a valid input"
-			input
+			playerEnters
 		fi
 
+}
+
+function playerOption()
+{
+
+	case $mode in
+		1) if [ $player -eq 1 ]
+		   then
+			playerEnters
+		   else
+			computerEnters
+		   fi 
+		   ;;
+		2) playerEnters
+	esac
 }
 
 function Options()
@@ -151,46 +207,47 @@ function Options()
 	read -r mode
 }
 
-function GamePlace()
+function ComputerGame()
 {
 
-	 if [ $game_Position -eq 0 ]
-                then
-                        playingBox
-                        echo "player "$player "won "
-                elif [ $game_Position -eq 2 ]
-                then
-                        print_Box
-                        echo "tie"
-                        game_Position=0
-                else
-                        player=$(( (( $player%2 ))+1 ))
+ 	if [ $player -eq 2 ]
+        then
+               	echo "computer can play now"
+        else
+                echo "player can play now"
+        fi
 
-                        echo "player "$player "can play now"
-                fi
+        while [ $game_Position -eq 1 ]
+        do
+                playingBox
+                playerOption
+                checkBox
+                GamePlace
+        done
 }
 
 function gameBegins()
 {
-
+	computerChoice
 	resetting
 	Options
         symbols
 	toss
 
-	if [ $mode -eq 1 ] && [ $player -eq 2 ]
+	if [ $mode -eq 1 ]
 	then
-		echo "computer can play now"
+		ComputerGame
 	else
-        	echo "player "$player "can play now"
-	fi
+	        echo "player "$player "can play now"
 
-	while [ $game_Position -eq 1 ]
-	do
-        	playingBox
-		input
-		checkBox
-		GamePlace
-	done
+		while [ $game_Position -eq 1 ]
+		do
+        		playingBox
+			playerEnters
+			checkBox
+			GamePlace
+		done
+	fi
 }
+
 gameBegins
