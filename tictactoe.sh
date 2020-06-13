@@ -1,4 +1,4 @@
-#! /bin/bash/ 
+#! /bin/bash 
 
 echo "TicTakToe game"
 
@@ -16,10 +16,15 @@ function GamePlace()
          if [ $game_Position -eq 0 ]
                 then
                         playingBox
-                        echo "player "$player "won "
+			if [ $mode -eq 1 ] && [ $player -eq 2 ]
+                        then
+                                echo "computer won "
+                        else
+                                echo "player "$player "won "
+			fi
                 elif [ $game_Position -eq 2 ]
                 then
-                        playing_Box
+                        playingBox
                         echo "tie"
                         game_Position=0
                 else
@@ -35,6 +40,14 @@ function GamePlace()
 }
 
 function checkGame()
+{
+	if [ ${array[$1]} != "@" ] && [ ${array[$1]} == ${array[$2]} ] && [ ${array[$2]} == ${array[$3]} ]
+        then
+                game_Position=0
+        fi
+}
+
+function drawMatch()
 {
 	if [ ${array[$1]} != "@" ] && [ ${array[$1]} == ${array[$2]} ] && [ ${array[$2]} == ${array[$3]} ]
         then
@@ -59,7 +72,7 @@ function checkWinning()
 			valueSet=1
 		elif [ ${array[$1]} == "@" ] && [ ${array[$2]} == $computerSymbol ] && [ ${array[$3]} == $computerSymbol ]
 		then
-			array[$1]=$computer_Symbol
+			array[$1]=$computerSymbol
 			valueSet=1
 		fi 
 	fi
@@ -91,22 +104,38 @@ function blockGame()
 function checkCorners()
 {
 
-        if [ ${array[$1]} == "@" ]
+	if [ $valueSet -eq 0 ]
         then
-        	array[$1]=$computerSymbol
-                valueSet=1
-        elif [ ${array[$2]} == "@" ]
+        	if [ ${array[$1]} == "@" ]
+        	then
+        		array[$1]=$computerSymbol
+			valueSet=1
+        	elif [ ${array[$2]} == "@" ]
+        	then
+                	array[$2]=$computerSymbol
+			valueSet=1
+		elif [ ${array[$3]} == "@" ]
+        	then
+                	array[$3]=$computerSymbol
+			valueSet=1
+		elif [ ${array[$4]} == "@" ]
+        	then
+                	array[$4]=$computerSymbol
+			valueSet=1
+		fi
+	fi
+}
+
+function checkCentre()
+{
+
+	if [ $valueSet -eq 0 ]
         then
-                array[$2]=$computerSymbol
-                valueSet=1
-	elif [ ${array[$3]} == "@" ]
-        then
-                array[$3]=$computerSymbol
-                valueSet=1
-	elif [ ${array[$4]} == "@" ]
-        then
-                array[$4]=$computerSymbol
-                valueSet=1
+		if [ ${array[$1]} == "@" ]
+		then
+			array[$1]=$computerSymbol
+			valueSet=1
+		fi
 	fi
 }
 
@@ -143,9 +172,9 @@ function playingBox()
 
 function toss()
 {
-	echo "Option :"
-	echo "1. Up"
-	echo "2. Down"
+echo "Option :"
+echo "1. Up"
+echo "2. Down"
 
 	read -r tossOption
 
@@ -202,7 +231,7 @@ function setBox()
 	then
 		array[$arrayId]=$3
 	else
-		echo "cannot place"
+		echo "cannot place "
 	fi
 }
 
@@ -210,6 +239,7 @@ function computerEnters()
 {
 
 	valueSet=0
+
 	checkWinning 0 1 2
         checkWinning 3 4 5
         checkWinning 6 7 8
@@ -229,6 +259,8 @@ function computerEnters()
         blockGame 2 4 6
 
 	checkCorners 0 2 6 8
+
+	checkCentre 4
 }
 
 function playerEnters()
@@ -262,8 +294,7 @@ function playerOption()
 			playerEnters
 		   else
 			computerEnters
-		   fi 
-		   ;;
+		   fi ;;
 		2) playerEnters
 	esac
 }
@@ -271,7 +302,7 @@ function playerOption()
 function Options()
 {
 
-	echo "Options:"
+	echo "options: "
 	echo "1. computer"
 	echo "2. between players"
 
@@ -291,11 +322,8 @@ function ComputerGame()
         while [ $game_Position -eq 1 ]
         do
                 playingBox
-
-                playerOption
-
+		playerOption
                 checkBox
-
                 GamePlace
         done
 }
@@ -304,13 +332,9 @@ function gameBegins()
 {
 
 	computerChoice=nothing
-
 	resetting
-
 	Options
-
         symbols
-
 	toss
 
 	if [ $mode -eq 1 ]
