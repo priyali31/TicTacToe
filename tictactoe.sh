@@ -20,7 +20,7 @@ function GamePlace()
                         then
                                 echo "computer won "
                         else
-                                echo "player "$player "won "
+                                echo "player "$player "won"
 			fi
                 elif [ $game_Position -eq 2 ]
                 then
@@ -40,14 +40,6 @@ function GamePlace()
 }
 
 function checkGame()
-{
-	if [ ${array[$1]} != "@" ] && [ ${array[$1]} == ${array[$2]} ] && [ ${array[$2]} == ${array[$3]} ]
-        then
-                game_Position=0
-        fi
-}
-
-function drawMatch()
 {
 	if [ ${array[$1]} != "@" ] && [ ${array[$1]} == ${array[$2]} ] && [ ${array[$2]} == ${array[$3]} ]
         then
@@ -126,6 +118,31 @@ function checkCorners()
 	fi
 }
 
+function checkSide()
+{
+
+        if [ $valueSet -eq 0 ]
+        then
+                if [ ${array[$1]} == "@" ]
+                then
+                        array[$1]=$computerSymbol
+                        valueSet=1
+                elif [ ${array[$2]} == "@" ]
+                then
+                        array[$2]=$computerSymbol
+                        valueSet=1
+                elif [ ${array[$3]} == "@" ]
+                then
+                        array[$3]=$computerSymbol
+                        valueSet=1
+                elif [ ${array[$4]} == "@" ]
+                then
+                        array[$4]=$computerSymbol
+                        valueSet=1
+                fi
+        fi
+}
+
 function checkCentre()
 {
 
@@ -142,7 +159,8 @@ function checkCentre()
 function drawMatch()
 {
 
-	if [ ${array[0]} != "@" ] && [ ${array[1]} != "@" ] && [ ${array[2]} != "@" ] && [ ${array[3]} != "@" ] && [ ${array[4]} != "@" ] && [ ${array[5]} != "@" ] && [ ${array[6]} != "@" ] && [ ${array[7]} != "@" ] && [ ${array[8]} != "@" ]
+	if [ ${array[0]} != "@" ] && [ ${array[1]} != "@" ] && [ ${array[2]} != "@" ] && [ ${array[3]} != "@" ] && [ ${array[4]} != "@" ] && 
+		[ ${array[5]} != "@" ] && [ ${array[6]} != "@" ] && [ ${array[7]} != "@" ] && [ ${array[8]} != "@" ]
 	then
 		game_Position=2
 	fi
@@ -150,7 +168,6 @@ function drawMatch()
 
 function checkBox()
 {
-
 	drawMatch
 	checkGame 0 1 2
 	checkGame 3 4 5
@@ -161,13 +178,12 @@ function checkBox()
 	checkGame 0 4 8
 	checkGame 2 4 6
 }
-
 function playingBox()
 {
 
-	echo "row 0   ${array[0]} ${array[1]} ${array[2]}"
-	echo "row 1   ${array[3]} ${array[4]} ${array[5]}"
-	echo "row 2   ${array[6]} ${array[7]} ${array[8]}"
+	echo "0   ${array[0]} ${array[1]} ${array[2]}"
+	echo "1   ${array[3]} ${array[4]} ${array[5]}"
+	echo "2   ${array[6]} ${array[7]} ${array[8]}"
 }
 
 function toss()
@@ -195,6 +211,7 @@ echo "2. Down"
 
 function symbols()
 {
+
 	case $mode in
 		1) if [ $(( $RANDOM%2 )) -eq 1 ]
 	           then
@@ -231,13 +248,14 @@ function setBox()
 	then
 		array[$arrayId]=$3
 	else
-		echo "cannot place "
+		echo "cannot place there"
 	fi
 }
 
 function computerEnters()
 {
 
+	valueSet=0
 	valueSet=0
 
 	checkWinning 0 1 2
@@ -261,18 +279,19 @@ function computerEnters()
 	checkCorners 0 2 6 8
 
 	checkCentre 4
+
+	checkSide 1 3 5 7
 }
 
 function playerEnters()
 {
-
 	if [ $player -eq 1 ]
 	then
 		player_Symbol=$playerOneSymbol
 	else
 		player_Symbol=$playerTwoSymbol
 	fi
-		echo "Enter row and column: "
+		echo "enter row and column"
 		read -r command row column
 
 		if [ $command == "set" ]
@@ -287,7 +306,6 @@ function playerEnters()
 
 function playerOption()
 {
-
 	case $mode in
 		1) if [ $player -eq 1 ]
 		   then
@@ -301,11 +319,9 @@ function playerOption()
 
 function Options()
 {
-
 	echo "options: "
 	echo "1. computer"
 	echo "2. between players"
-
 	read -r mode
 }
 
@@ -322,7 +338,7 @@ function ComputerGame()
         while [ $game_Position -eq 1 ]
         do
                 playingBox
-		playerOption
+                playerOption
                 checkBox
                 GamePlace
         done
