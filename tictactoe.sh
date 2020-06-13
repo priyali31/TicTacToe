@@ -146,7 +146,7 @@ function setBox()
 
 	arrayId=$(( $(( $1-1 )) * 3 + $(( $2-1)) ))
 
-	if [ ${array[$arrayId]} == "." ]
+	if [ ${array[$arrayId]} == "@" ]
 	then
 		array[$arrayId]=$3
 	else
