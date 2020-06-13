@@ -1,12 +1,13 @@
-#! /bin/bash 
+#! /bin/bash/ 
+
 echo "TicTakToe game"
 
 function resetting()
 {
 
   	player=1
-	array=(@ @ @ @ @ @ @ @ @)
-	game_Status=1
+	array=(@ @ @ @ @ @ @ @ @ )
+	game_Position=1
 }
 
 function GamePlace()
@@ -14,12 +15,12 @@ function GamePlace()
 
          if [ $game_Position -eq 0 ]
                 then
-                        printBoard
-                        echo "player "$player "won the game"
+                        playingBox
+                        echo "player "$player "won "
                 elif [ $game_Position -eq 2 ]
                 then
                         playing_Box
-                        echo "match tie"
+                        echo "tie"
                         game_Position=0
                 else
                         player=$(( (( $player%2 ))+1 ))
@@ -58,7 +59,7 @@ function checkWinning()
 			valueSet=1
 		elif [ ${array[$1]} == "@" ] && [ ${array[$2]} == $computerSymbol ] && [ ${array[$3]} == $computerSymbol ]
 		then
-			array[$1]=$computerSymbol
+			array[$1]=$computer_Symbol
 			valueSet=1
 		fi 
 	fi
@@ -87,10 +88,32 @@ function blockGame()
 	fi
 }
 
+function checkCorners()
+{
+
+        if [ ${array[$1]} == "@" ]
+        then
+        	array[$1]=$computerSymbol
+                valueSet=1
+        elif [ ${array[$2]} == "@" ]
+        then
+                array[$2]=$computerSymbol
+                valueSet=1
+	elif [ ${array[$3]} == "@" ]
+        then
+                array[$3]=$computerSymbol
+                valueSet=1
+	elif [ ${array[$4]} == "@" ]
+        then
+                array[$4]=$computerSymbol
+                valueSet=1
+	fi
+}
+
 function drawMatch()
 {
 
-	if [ ${array[0]} != "@" ] && [ ${array[1]} != ".@" ] && [ ${array[2]} != "@" ] && [ ${array[3]} != "@" ] && [ ${array[4]} != "@" ] && 	[ ${array[5]} != "@" ] && [ ${array[6]} != "@" ] && [ ${array[7]} != "@" ] && [ ${array[8]} != "@" ]
+	if [ ${array[0]} != "@" ] && [ ${array[1]} != "@" ] && [ ${array[2]} != "@" ] && [ ${array[3]} != "@" ] && [ ${array[4]} != "@" ] && [ ${array[5]} != "@" ] && [ ${array[6]} != "@" ] && [ ${array[7]} != "@" ] && [ ${array[8]} != "@" ]
 	then
 		game_Position=2
 	fi
@@ -112,6 +135,7 @@ function checkBox()
 
 function playingBox()
 {
+
 	echo "row 0   ${array[0]} ${array[1]} ${array[2]}"
 	echo "row 1   ${array[3]} ${array[4]} ${array[5]}"
 	echo "row 2   ${array[6]} ${array[7]} ${array[8]}"
@@ -119,7 +143,6 @@ function playingBox()
 
 function toss()
 {
-
 	echo "Option :"
 	echo "1. Up"
 	echo "2. Down"
@@ -175,18 +198,18 @@ function setBox()
 
 	arrayId=$(( $(( $1-1 )) * 3 + $(( $2-1)) ))
 
-	if [ ${array[$arrayId]} == "." ]
+	if [ ${array[$arrayId]} == "@" ]
 	then
 		array[$arrayId]=$3
 	else
-		echo "cannot place "
+		echo "cannot place"
 	fi
 }
 
 function computerEnters()
 {
-	valueSet=0
 
+	valueSet=0
 	checkWinning 0 1 2
         checkWinning 3 4 5
         checkWinning 6 7 8
@@ -205,17 +228,18 @@ function computerEnters()
         blockGame 0 4 8
         blockGame 2 4 6
 
+	checkCorners 0 2 6 8
 }
 
 function playerEnters()
 {
+
 	if [ $player -eq 1 ]
 	then
 		player_Symbol=$playerOneSymbol
 	else
 		player_Symbol=$playerTwoSymbol
 	fi
-
 		echo "Enter row and column: "
 		read -r command row column
 
@@ -238,7 +262,8 @@ function playerOption()
 			playerEnters
 		   else
 			computerEnters
-		   fi ;;
+		   fi 
+		   ;;
 		2) playerEnters
 	esac
 }
@@ -246,15 +271,17 @@ function playerOption()
 function Options()
 {
 
-	echo "Options: "
-	echo "1. Computer"
-	echo "2. Between Players"
+	echo "Options:"
+	echo "1. computer"
+	echo "2. between players"
+
 	read -r mode
 }
 
 function ComputerGame()
 {
-	if [ $player -eq 2 ]
+
+ 	if [ $player -eq 2 ]
         then
                	echo "computer can play now"
         else
@@ -264,18 +291,26 @@ function ComputerGame()
         while [ $game_Position -eq 1 ]
         do
                 playingBox
+
                 playerOption
+
                 checkBox
+
                 GamePlace
         done
 }
 
 function gameBegins()
 {
-	computerChoice
+
+	computerChoice=nothing
+
 	resetting
+
 	Options
+
         symbols
+
 	toss
 
 	if [ $mode -eq 1 ]
