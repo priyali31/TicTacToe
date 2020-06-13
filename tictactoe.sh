@@ -318,7 +318,7 @@ function playerOption()
 	esac
 }
 
-function Options()
+function options()
 {
 
 	echo "option:"
@@ -352,7 +352,7 @@ function gameBegins()
 
 	computerChoice=nothing
 	resetting
-	Options
+	options
         symbols
 	toss
 
