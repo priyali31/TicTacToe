@@ -329,7 +329,7 @@ function checkingWinningRowsForComputer()
    done
 }
 
-function CheckingWinningColumnsForComputer()
+function checkingWinningColumnsForComputer()
 {
 #Columns
    for ((col=0; col<NUM_OFCOLUMNS; col++))
