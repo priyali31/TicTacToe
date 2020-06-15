@@ -1,7 +1,6 @@
-#!/bin/bash
+#! /bin/bash
 
-echo "Welcome to TicTacToe"
-
+echo "tictactoe"
 #constants
 NUM_OFROWS=3
 NUM_OFCOLUMNS=3
@@ -18,11 +17,11 @@ function resetBoard()
    do
       for ((j=0; j<NUM_OFCOLUMNS; j++))
       do
-         board[$i,$j]=$EMPTY
-         board[$i,$j]=$cell
+         board[$i,$j]=0
+        board[$i,$j]=$cell
          ((cell++))
 
-          done
+      done
    done
 }
 
@@ -54,13 +53,11 @@ function toss()
 function displayBoard()
 {
    echo "##### TicTacToe Board #####"
-   local i=0
-   local j=0
    for (( i=0; i<NUM_OFROWS; i++ ))
    do
       for (( j=0; j<NUM_OFCOLUMNS; j++ ))
       do
-         echo -n "|   ${board[$i,$j]}   |"
+         echo -n "| ${board[$i,$j]} |"
       done
          printf "\n"
    done
@@ -68,19 +65,13 @@ function displayBoard()
 
 function inputToBoard()
 {
- for (( i=0; i<$LENGTH; i++))
+for (( i=0; i<$LENGTH; i++))
    do
-      echo "###########################"
       displayBoard
       if [ $playerTurn -eq 1 ]
       then
       read  -p "Choose one cell for input : " playerCell
 
-         if [ $playerCell -gt $LENGTH ]
-         then
-            echo "Invalid move, Select valid cell"
-            printf "\n"
-         else
             rowIndex=$(( $playerCell / $NUM_OFROWS ))
                if [ $(( $playerCell % $NUM_OFROWS )) -eq 0 ]
                then
@@ -91,31 +82,38 @@ function inputToBoard()
                if [ $columnIndex -eq 0 ]
                then
                   columnIndex=$(( $columnIndex + 2 ))
+               else
+                  columnIndex=$(( $columnIndex - 1 ))
                fi
 
-            board[$rowIndex,$columnIndex]=$PLAYER_SYM
-            playerTurn=0
-               if [ $(checkWinner $PLAYER_SYM) -eq 1  ]
+               if [ "${board[$rowIndex,$columnIndex]}" == "$PLAYER_SYM" ] 
+               then
+                  echo "Invalid move, Cell already filled"
+                  printf "\n"
+                  ((i--))
+               else
+                  board[$rowIndex,$columnIndex]=$PLAYER_SYM
+                  playerTurn=0
+
+                  if [ $(checkWinner $PLAYER_SYM) -eq 1  ]
                   then
                      echo "You Won"
                      return 0
+                  fi
                fi
-         fi
-
-      else
+  else
          echo "#### Computer's Turn ######"
-        checkingWinningRowsForComputer
-	checkingWinningColumnsForComputer
-       	checkingWinningDiagonalForComputer
+         winningRowForComputer
+         winningColumnForComputer
+         winningDiagonalForComputer
          if [ $(checkWinner $COMP_SYM) -eq 1  ]
          then
             echo "Computer Won"
             return 0
          fi
-         computerCheckingPlayerWinningRowsForBlocking
-         computerCheckingPlayerWinningColumnsForBlocking
-	 computerCheckingPlayerWinningDiagonalForBlocking
-
+         winningRowForBlocking
+         winningColumnForBlocking
+         winningDiagonalForBlocking
          if [[ $cellBlocked == true ]]
          then
             cellBlocked=false
@@ -132,9 +130,7 @@ function inputToBoard()
       fi
    done
    echo "Match Tie"
-
 }
-
 
 function checkWinner()
 {
@@ -169,20 +165,22 @@ function checkWinner()
    fi
 }
 
-
-function  computerCheckingPlayerWinningRowsForBlocking()
+function winningRowForBlocking()
 {
-#Rows
    if [[ $cellBlocked == false ]]
    then
+        local row=0
+        local col=0
+
       for ((row=0; row<NUM_OFROWS; row++))
       do
+         cellBlocked=true
+
          if [ ${board[$row,$col]} == $PLAYER_SYM ] && [ ${board[$(($row)),$(($col+1))]} == $PLAYER_SYM ]
          then
            if [ ${board[$row,$(($col+2))]} != $COMP_SYM ]
            then
               board[$row,$(($col+2))]=$COMP_SYM
-              cellBlocked=true
               break
            fi
          elif [ ${board[$row,$(($col+1))]} == $PLAYER_SYM ] && [ ${board[$row,$(($col+2))]} == $PLAYER_SYM ]
@@ -190,7 +188,6 @@ function  computerCheckingPlayerWinningRowsForBlocking()
             if [ ${board[$row,$col]} != $COMP_SYM ]
             then
                board[$row,$col]=$COMP_SYM
-               cellBlocked=true
                break
             fi
          elif [ ${board[$row,$col]} == $PLAYER_SYM ] && [ ${board[$row,$(($col+2))]} == $PLAYER_SYM ]
@@ -198,27 +195,29 @@ function  computerCheckingPlayerWinningRowsForBlocking()
             if [ ${board[$row,$(($col+1))]} != $COMP_SYM ]
             then
                board[$row,$(($col+1))]=$COMP_SYM
-               cellBlocked=true
                break
             fi
          fi
       done
-   fi
-
+fi
 }
-function  computerCheckingPlayerWinningColumnsForBlocking()
+
+function winningColumnForBlocking()
 {
-#Columns
    if [[ $cellBlocked == false ]]
    then
+        local row=0
+        local col=0
+
       for ((col=0; col<NUM_OFCOLUMNS; col++))
       do
+         cellBlocked=true
+
          if [ ${board[$row,$col]} == $PLAYER_SYM ] &&  [ ${board[$(($row+1)),$col]} == $PLAYER_SYM ]
          then
             if [ ${board[$(($row+2)),$col]} != $COMP_SYM ]
             then
                board[$(($row+2)),$col]=$COMP_SYM
-               cellBlocked=true
                break
             fi
          elif [ ${board[$(($row+1)),$col]} == $PLAYER_SYM ] && [ ${board[$(($row+2)),$col]} == $PLAYER_SYM ]
@@ -226,7 +225,6 @@ function  computerCheckingPlayerWinningColumnsForBlocking()
             if [ ${board[$row,$col]} != $COMP_SYM ]
             then
                board[$row,$col]=$COMP_SYM
-               cellBlocked=true
                break
             fi
          elif [ ${board[$row,$col]} == $PLAYER_SYM ] && [ ${board[$(($row+2)),$col]} == $PLAYER_SYM ]
@@ -234,24 +232,24 @@ function  computerCheckingPlayerWinningColumnsForBlocking()
             if [ ${board[$(($row+1)),$col]} != $COMP_SYM ]
             then
                board[$(($row+1)),$col]=$COMP_SYM
-               cellBlocked=true
                break
             fi
          fi
       done
-   fi
+fi
 }
-function  computerCheckingPlayerWinningDiagonalForBlocking()
+function winningDiagonalForBlocking()
 {
-#Diagonal
    if [[ $cellBlocked == false ]]
    then
+      local row=0
+      local col=0
+      cellBlocked=true
       if [ ${board[$row,$col]} == $PLAYER_SYM ] &&  [ ${board[$(($row+1)),$(($col+1))]} == $PLAYER_SYM ]
       then
          if [ ${board[$(($row+2)),$(($col+2))]} != $COMP_SYM ]
          then
             board[$(($row+2)),$(($col+2))]=$COMP_SYM
-            cellBlocked=true
             return
          fi
       elif [ ${board[$(($row+1)),$(($col+1))]} == $PLAYER_SYM ] && [ ${board[$(($row+2)),$(($col+2))]} == $PLAYER_SYM ]
@@ -259,7 +257,6 @@ function  computerCheckingPlayerWinningDiagonalForBlocking()
          if [ ${board[$row,$col]} != $COMP_SYM ]
          then
             board[$row,$col]=$COMP_SYM
-            cellBlocked=true
             return
           fi
       elif [ ${board[$row,$col]} == $PLAYER_SYM ] && [ ${board[$(($row+2)),$(($col+2))]} == $PLAYER_SYM ]
@@ -267,7 +264,6 @@ function  computerCheckingPlayerWinningDiagonalForBlocking()
          if [ ${board[$(($row+1)),$(($col+1))]} != $COMP_SYM ]
          then
             board[$(($row+1)),$(($col+1))]=$COMP_SYM
-            cellBlocked=true
             return
           fi
       elif [ ${board[$(($row+2)),$col]} == $PLAYER_SYM ] &&  [ ${board[$(($row+1)),$(($col+1))]} == $PLAYER_SYM ]
@@ -275,7 +271,6 @@ function  computerCheckingPlayerWinningDiagonalForBlocking()
          if [ ${board[$row,$(($col+2))]} != $COMP_SYM ]
          then
             board[$row,$(($col+2))]=$COMP_SYM
-            cellBlocked=true
             return
           fi
       elif [ ${board[$(($row+1)),$(($col+1))]} == $PLAYER_SYM ] && [ ${board[$row,$(($col+2))]} == $PLAYER_SYM ]
@@ -283,7 +278,6 @@ function  computerCheckingPlayerWinningDiagonalForBlocking()
          if [ ${board[$(($row+2)),$col]} != $COMP_SYM ]
          then
             board[$(($row+2)),$col]=$COMP_SYM
-            cellBlocked=true
             return
           fi
       elif [ ${board[$(($row+2)),$col]} == $PLAYER_SYM ] && [ ${board[$row,$(($col+2))]} == $PLAYER_SYM ]
@@ -291,7 +285,6 @@ function  computerCheckingPlayerWinningDiagonalForBlocking()
          if [ ${board[$(($row+1)),$(($col+1))]} != $COMP_SYM ]
          then
             board[$(($row+1)),$(($col+1))]=$COMP_SYM
-            cellBlocked=true
             return
          fi
       fi
@@ -299,9 +292,10 @@ function  computerCheckingPlayerWinningDiagonalForBlocking()
 }
 
 
-function checkingWinningRowsForComputer()
+function  winningRowForComputer()
 {
-#Rows
+        local row=0
+        local col=0
    for ((row=0; row<NUM_OFROWS; row++))
    do
       if [ ${board[$row,$col]} == $COMP_SYM ] && [ ${board[$(($row)),$(($col+1))]} == $COMP_SYM ]
@@ -328,13 +322,14 @@ function checkingWinningRowsForComputer()
       fi
    done
 }
-
-function checkingWinningColumnsForComputer()
+function  winningColumnForComputer()
 {
-#Columns
+        local row=0
+        local col=0
+
    for ((col=0; col<NUM_OFCOLUMNS; col++))
    do
-      if [ ${board[$row,$col]} == $COMP_SYM ] &&  [ ${board[$(($row+1)),$col]} == $COMP_SYM ]
+	if [ ${board[$row,$col]} == $COMP_SYM ] &&  [ ${board[$(($row+1)),$col]} == $COMP_SYM ]
       then
          if [ ${board[$(($row+2)),$col]} != $PLAYER_SYM ]
          then
@@ -358,9 +353,10 @@ function checkingWinningColumnsForComputer()
       fi
    done
 }
-function checkingWinningDiagonalForComputer()
+function  winningDiagonalForComputer()
 {
-#Diagonal
+local row=0
+local col=0
       if [ ${board[$row,$col]} == $COMP_SYM ] &&  [ ${board[$(($row+1)),$(($col+1))]} == $COMP_SYM ]
       then
          if [ ${board[$(($row+2)),$(($col+2))]} != $PLAYER_SYM ]
@@ -410,42 +406,35 @@ function checkingWinningDiagonalForComputer()
 
 function checkCornersCenterSidesAvailability()
 {
+isCornerAvailable=true
+
       if [ ${board[0,0]} != $PLAYER_SYM ] && [ ${board[0,0]} != $COMP_SYM ]
       then
          board[0,0]=$COMP_SYM
-         isCornerAvailable=true
       elif [ ${board[0,2]} != $PLAYER_SYM ] && [ ${board[0,2]} != $COMP_SYM ]
       then
          board[0,2]=$COMP_SYM
-         isCornerAvailable=true
       elif [ ${board[2,0]} != $PLAYER_SYM ] && [ ${board[2,0]} != $COMP_SYM ]
       then
          board[2,0]=$COMP_SYM
-         isCornerAvailable=true
       elif [ ${board[2,2]} != $PLAYER_SYM ] && [ ${board[2,2]} != $COMP_SYM ]
       then
          board[2,2]=$COMP_SYM
-         isCornerAvailable=true
       elif [ ${board[1,1]} != $PLAYER_SYM ] && [ ${board[1,1]} != $COMP_SYM ]
       then
          board[1,1]=$COMP_SYM
-         isCenterAvailable=true
       elif [ ${board[0,1]} != $PLAYER_SYM ] && [ ${board[0,1]} != $COMP_SYM ]
       then
          board[0,1]=$COMP_SYM
-         isSideAvailable=true
       elif [ ${board[1,2]} != $PLAYER_SYM ] && [ ${board[1,2]} != $COMP_SYM ]
       then
          board[1,2]=$COMP_SYM
-         isSideAvailable=true
       elif [ ${board[2,1]} != $PLAYER_SYM ] && [ ${board[2,1]} != $COMP_SYM ]
       then
          board[2,1]=$COMP_SYM
-         isSideAvailable=true
       elif [ ${board[1,0]} != $PLAYER_SYM ] && [ ${board[1,0]} != $COMP_SYM ]
       then
          board[1,0]=$COMP_SYM
-         isSideAvailable=true
       fi
 }
 resetBoard
@@ -453,3 +442,4 @@ assigningSymbol
 toss
 inputToBoard
 displayBoard
+
